@@ -1,0 +1,39 @@
+#!/usr/bin/python3
+
+import boto3
+import urllib.request
+
+bucket_name = 'ds2022-mst3k'  # Your S3 bucket name
+object_name = 'giphy.gif'  # The file name to upload to S3
+expires_in = 604800  # Expiration time in seconds (7 days)
+
+s3 = boto3.client('s3', region_name='us-east-1')
+
+file_url = 'https://data.textstudio.com/output/sample/animated/4/4/2/5/example-3-5244.gif'
+local_file = 'giphy.gif' 
+
+urllib.request.urlretrieve(file_url, local_file)
+
+file_data = open(local_file, 'rb')
+s3.put_object(
+    Body=file_data,
+    Bucket=bucket_name,
+    Key=object_name,
+    ACL='public-read' 
+)
+file_data.close()
+
+presigned_url = s3.generate_presigned_url(
+    'get_object',
+    Params={'Bucket': bucket_name, 'Key': object_name},
+    ExpiresIn=expires_in
+)
+
+print("Presigned URL:", presigned_url)
+
+
+
+
+
+
+
